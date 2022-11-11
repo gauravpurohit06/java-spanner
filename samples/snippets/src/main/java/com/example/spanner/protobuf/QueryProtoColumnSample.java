@@ -41,15 +41,19 @@ public class QueryProtoColumnSample {
 
   static void queryProtoColumn(DatabaseClient client) {
     Statement statement =
-        Statement.newBuilder("SELECT singer_id, singer_info, genre\n" + "FROM Singer").build();
+        Statement.newBuilder("SELECT singer_id, singer_info, genre, singer_info_list, genre_list\n"
+            + "FROM Singer").build();
 
     try (ResultSet resultSet = client.singleUse().executeQuery(statement)) {
       while (resultSet.next()) {
         System.out.printf(
-            "singer_id: %s, singer_info: %s , genre: %s%n",
+            "singer_id: %s, singer_info: %s , genre: %s, "
+                + "singer_info_list: %s, genre_list: %s%n ",
             resultSet.getLong("singer_id"),
             resultSet.getProtoMessage("singer_info", SingerInfo.getDefaultInstance()),
-            resultSet.getProtoEnum("genre", Genre::forNumber));
+            resultSet.getProtoEnum("genre", Genre::forNumber),
+            resultSet.getProtoMessageList("singer_info_list", SingerInfo.getDefaultInstance()),
+            resultSet.getProtoEnumList("genre_list", Genre::forNumber));
       }
     }
   }

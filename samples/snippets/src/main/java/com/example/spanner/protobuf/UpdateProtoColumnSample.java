@@ -23,6 +23,7 @@ import com.google.cloud.spanner.Mutation;
 import com.google.cloud.spanner.Spanner;
 import com.google.cloud.spanner.SpannerOptions;
 import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
 
 public class UpdateProtoColumnSample {
 
@@ -58,6 +59,10 @@ public class UpdateProtoColumnSample {
                 .to(singerInfo)
                 .set("genre")
                 .to(Genre.JAZZ)
+                .set("singer_info_list")
+                .toProtoMessageArray(Arrays.asList(singerInfo, null, SingerInfo.getDefaultInstance()), SingerInfo.getDescriptor())
+                .set("genre_list")
+                .toProtoEnumArray(Arrays.asList(Genre.FOLK, null, Genre.ROCK), Genre.getDescriptor())
                 .build()));
   }
 }
