@@ -27,12 +27,13 @@ import com.google.cloud.spanner.Statement;
 public class QueryProtoColumnSample {
 
   static void queryProtoColumn() {
-    String projectId = "my-project";
-    String instanceId = "my-instance";
-    String databaseId = "my-database";
+    String projectId = "span-cloud-testing";
+    String instanceId = "gaurav-test";
+    String databaseId = "music";
 
     try (Spanner spanner =
-        SpannerOptions.newBuilder().setProjectId(projectId).build().getService()) {
+        SpannerOptions.newBuilder().setHost("https://staging-wrenchworks.sandbox.googleapis.com")
+            .setProjectId(projectId).build().getService()) {
       DatabaseClient client =
           spanner.getDatabaseClient(DatabaseId.of(projectId, instanceId, databaseId));
       queryProtoColumn(client);
@@ -42,7 +43,7 @@ public class QueryProtoColumnSample {
   static void queryProtoColumn(DatabaseClient client) {
     Statement statement =
         Statement.newBuilder("SELECT singer_id, singer_info, genre, singer_info_list, genre_list\n"
-            + "FROM Singer").build();
+            + "FROM SingerTest").build();
 
     try (ResultSet resultSet = client.singleUse().executeQuery(statement)) {
       while (resultSet.next()) {
@@ -56,5 +57,9 @@ public class QueryProtoColumnSample {
             resultSet.getProtoEnumList("genre_list", Genre::forNumber));
       }
     }
+  }
+
+  public static void main(String[] args) {
+    queryProtoColumn();
   }
 }
