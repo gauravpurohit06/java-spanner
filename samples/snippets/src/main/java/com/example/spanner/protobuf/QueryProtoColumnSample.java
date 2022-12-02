@@ -19,10 +19,14 @@ import com.example.spanner.protobuf.SingerProto.Genre;
 import com.example.spanner.protobuf.SingerProto.SingerInfo;
 import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.DatabaseId;
+import com.google.cloud.spanner.Key;
+import com.google.cloud.spanner.KeySet;
 import com.google.cloud.spanner.ResultSet;
 import com.google.cloud.spanner.Spanner;
 import com.google.cloud.spanner.SpannerOptions;
 import com.google.cloud.spanner.Statement;
+import com.google.cloud.spanner.TimestampBound;
+import java.util.Arrays;
 
 public class QueryProtoColumnSample {
 
@@ -36,9 +40,29 @@ public class QueryProtoColumnSample {
             .setProjectId(projectId).build().getService()) {
       DatabaseClient client =
           spanner.getDatabaseClient(DatabaseId.of(projectId, instanceId, databaseId));
-      queryProtoColumn(client);
+      queryProtoColumn1(client);
     }
   }
+
+  static void queryProtoColumn1(DatabaseClient client) {
+
+    try (ResultSet resultSet = client.singleUse(TimestampBound.strong())
+        .read(
+            "SingersNew",
+            KeySet.newBuilder()
+                .addKey(Key.of("in", null))
+                .build(),
+            Arrays.asList("SingerId", "SingerInfo", "SingerGenre"))) {
+      while (resultSet.next()) {
+        System.out.printf(
+            "singer_id: %s, singer_info: %s , genre: %s %n",
+            resultSet.getLong("SingerId"),
+            resultSet.getProtoMessage("SingerInfo", SingerInfo.getDefaultInstance()),
+            resultSet.getProtoEnum("SingerGenre", Genre::forNumber));
+      }
+    }
+  }
+
 
   static void queryProtoColumn(DatabaseClient client) {
     Statement statement =

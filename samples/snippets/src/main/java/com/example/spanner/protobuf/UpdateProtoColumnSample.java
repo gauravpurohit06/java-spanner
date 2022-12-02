@@ -50,7 +50,7 @@ public class UpdateProtoColumnSample {
     SingerInfo singerInfo =
         SingerInfo.newBuilder()
             .setSingerId(11)
-            .setNationality("Country1")
+            .setNationality("usa")
             .build();
 
     client
@@ -58,10 +58,12 @@ public class UpdateProtoColumnSample {
         .run(transaction -> {
           Statement statement =
               Statement.newBuilder(
-                      "INSERT INTO SingerTest (singer_id, singer_info, genre) VALUES "
-                          + "(1025,  NEW spanner.examples.music.SingerInfo(29 AS singer_id, \"gg\" as nationality), @bb )")
+                      "INSERT INTO SingersNew (SingerId, FirstName, SingerInfo, SingerGenre) VALUES "
+                          + "(1, \"Gaurav\", @aa, @bb )")
+                  .bind("aa")
+                  .to(singerInfo)
                   .bind("bb")
-                  .to(Genre.ROCK)
+                  .to(Value.protoEnum(null, Genre.getDescriptor().getFullName()))
                   .build();
           long rowCount = transaction.executeUpdate(statement);
           System.out.printf("%d record inserted.%n", rowCount);
